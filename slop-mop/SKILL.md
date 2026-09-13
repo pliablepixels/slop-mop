@@ -1,6 +1,6 @@
 ---
 name: slop-mop
-description: Use when writing or editing any prose a person will read, such as replies, docs, READMEs, reports, commit messages, PR bodies, emails, and summaries, or when asked whether text sounds like AI. Covers drafting from scratch, editing a draft, and flagging AI patterns without rewriting.
+description: Use when writing or editing any prose a person will read, such as replies, docs, READMEs, reports, commit messages, PR bodies, issue bodies, GitHub and PR review comments, emails, and summaries, or when asked whether text sounds like AI. Covers drafting from scratch, editing a draft, and flagging AI patterns without rewriting.
 ---
 
 # Slop mop
