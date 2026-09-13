@@ -9,10 +9,12 @@ It works in three modes. When the agent drafts text, it applies the rules as it 
 - Facts only. No invented names, numbers, dates, quotes, or sources. No stretching a small fact into a bigger claim. Failures reported as failures.
 - No boasting. No superlatives about the work, no "excited to announce," no "stands as a testament." A benchmark comes with its conditions.
 - Plain language. Common words, terms defined on first use, one idea per sentence, an example when the idea is abstract.
-- No staging. No "not X but Y," no throat clearing, no one-line closers, no colon reveals, no "the key point is."
+- No staging. No "not X but Y," no throat clearing, no one-line closers, no colon reveals, no "the key point is," no sentences that frame the work as a philosophy instead of saying what happens.
 - Sounds like a person. No em dashes, no forced triads, no synonym rotation, no bold labels on every list item, no chatbot wrappers.
 
 The full rules are in `slop-mop/SKILL.md`.
+
+When the agent delegates slop-mop work to subagents, the skill tells it to run them on Opus or a more capable model. Smaller models miss the rules that need judgment, such as the framing check.
 
 ## Install
 
