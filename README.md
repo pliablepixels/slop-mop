@@ -18,10 +18,12 @@ When the agent delegates slop-mop work to subagents, the skill tells it to run t
 
 ## Install
 
-Copy the skill directory into your agent's skills folder. For Claude Code:
+Clone this repo, then copy the skill directory into your agent's skills folder. For Claude Code:
 
 ```
-cp -r slop-mop ~/.claude/skills/slop-mop
+git clone https://github.com/pliablepixels/slop-mop.git
+mkdir -p ~/.claude/skills
+cp -r slop-mop/slop-mop ~/.claude/skills/
 ```
 
 Then tell your agent to use it for prose. In Claude Code, add a line like this to `~/.claude/CLAUDE.md`:
