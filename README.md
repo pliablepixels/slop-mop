@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/slop-mop.png" alt="slop-mop logo: a mop sweeping up scribbles" width="200"></p>
+
 # slop-mop
 
 A writing skill for coding agents. It makes the agent write the way a careful person explains something to a friend who does not know the subject: plain words, short sentences, no selling, nothing invented.
