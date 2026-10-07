@@ -40,21 +40,24 @@ Use the slop-mop skill for all prose: replies, docs, READMEs, reports, commit me
 
 The CLAUDE.md line asks the agent to load the skill, and the agent decides when a task counts as prose. It can get that wrong. A first message like "check if this issue is true" looks like a code task, so the agent answers without the skill and without your personal rules.
 
-To make that less likely, add a SessionStart hook that puts your rules and the instruction to load the skill at the start of every session. In `~/.claude/settings.json`, merge this into `hooks`:
+To take that decision away from the agent, add SessionStart hooks that print the whole skill and your `personal.md` at the start of every session. In `~/.claude/settings.json`, merge this into `hooks`:
 
 ```json
 "SessionStart": [
   {
     "hooks": [
-      { "type": "command", "command": "sh ~/.claude/skills/slop-mop/preload.sh" }
+      { "type": "command", "command": "sh ~/.claude/skills/slop-mop/preload.sh 1" },
+      { "type": "command", "command": "sh ~/.claude/skills/slop-mop/preload.sh 2" },
+      { "type": "command", "command": "sh ~/.claude/skills/slop-mop/preload.sh 3" },
+      { "type": "command", "command": "sh ~/.claude/skills/slop-mop/preload.sh 4" }
     ]
   }
 ]
 ```
 
-`preload.sh` prints an instruction to load the skill before the first reply, your `personal.md` if you have one, and the skill's "Check before sending" list. It does not print all of `SKILL.md`. Claude Code moves hook output over 10,000 characters to a file and shows the agent only the first 2 KB, which would cut off the personal rules. The output is about 4,000 characters with a typical `personal.md`. The hook also runs after the context is compacted, so the rules come back after a long session gets summarized.
+Claude Code caps each hook's output at 10,000 characters. Anything longer goes to a file, and the agent sees only the first 2,000 characters. So `preload.sh N` splits `SKILL.md` and `personal.md` at headings into parts under 9,000 characters and prints part N. Today that makes three parts. The fourth entry prints nothing until the files grow. Each part is labeled "part N of M", and the first part tells the agent to read the files if a part is missing.
 
-Your personal rules and the check list always reach the agent this way. Loading the full skill still depends on the agent following the instruction, though a direct instruction at the top of the session is much harder to skip than a CLAUDE.md line.
+The hooks also run after the context is compacted, so the rules come back after a long session gets summarized. The cost is the size of the two files, about 23,000 characters (roughly 6,000 tokens) per session.
 
 ## Personal style
 

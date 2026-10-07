@@ -1,19 +1,31 @@
 #!/bin/sh
-# Output for a SessionStart hook. Claude Code moves hook output over 10,000
-# characters to a file and shows the agent only a 2 KB preview, so this
-# prints the short parts in full and points at SKILL.md for the rest.
+# SessionStart hook output. Claude Code caps each hook's stdout at 10,000
+# characters and shows only a 2,000-character preview of anything longer, so
+# SKILL.md and personal.md are split at headings into parts under 9,000
+# characters, one hook entry per part. `preload.sh N` prints part N, and
+# nothing when there is no part N.
 d=$(cd "$(dirname "$0")" && pwd)
-limit=9000
-echo "Before your first reply in this session, load the slop-mop skill with the Skill tool (or read $d/SKILL.md). Apply it to all prose, including replies to the user."
-if [ -f "$d/personal.md" ]; then
-  if [ "$(wc -c < "$d/personal.md")" -lt "$limit" ]; then
-    echo "The writer's personal rules follow. They apply to every reply in this session."
-    echo
-    cat "$d/personal.md"
-  else
-    echo "The writer's personal rules are too long to print here. Read $d/personal.md before your first reply."
-  fi
-fi
-echo
-awk '/^## Check before sending/{p=1} /^## Sources/{p=0} p' "$d/SKILL.md"
+part=${1:-1}
+{
+  cat "$d/SKILL.md"
+  if [ -f "$d/personal.md" ]; then echo; cat "$d/personal.md"; fi
+} | awk -v max=9000 -v want="$part" -v dir="$d" '
+  /^```/ { fence = !fence }
+  !fence && /^#+ / && sec != "" { secs[++n] = sec; sec = "" }
+  { sec = sec $0 "\n" }
+  END {
+    secs[++n] = sec
+    p = 1
+    for (i = 1; i <= n; i++) {
+      if (length(chunk[p]) > 0 && length(chunk[p]) + length(secs[i]) > max) p++
+      chunk[p] = chunk[p] secs[i]
+    }
+    if (want > p) exit
+    if (want == 1)
+      printf "The slop-mop skill and the writer'\''s personal rules follow in %d parts. Apply them to all prose in this session, including replies to the user. If a part is missing, read %s/SKILL.md and %s/personal.md before your first reply.\n\n", p, dir, dir
+    if (length(chunk[want]) > max)
+      printf "[slop-mop part %d of %d is too long to print. Read %s/SKILL.md and %s/personal.md before your first reply.]\n", want, p, dir, dir
+    else
+      printf "[slop-mop part %d of %d]\n%s", want, p, chunk[want]
+  }'
 exit 0
