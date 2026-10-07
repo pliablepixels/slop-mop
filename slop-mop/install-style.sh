@@ -23,7 +23,7 @@ overrides=""
 {
   printf '%s\n' '---' 'name: slop-mop' "description: Plain, factual prose in the writer's own voice" 'keep-coding-instructions: true' '---' ''
   if [ -f "$personal" ]; then
-    echo "Write every reply to the user, and all other prose (docs, commit messages, PR and issue bodies, comments), in the writer's voice described by the personal rules below. They decide length, openings, punctuation, and formatting for every reply, including diagnoses and status reports. A reply to the user should read like one of the samples at the end of the personal rules, with the same dashes and openings, and stay within their length (${range:-similar} words) unless the user asks for more detail. To fit, give the answer and only the evidence the reader needs to act on it, and leave the rest out. The base rules after them apply where the personal rules say nothing. Neither set may change a fact."
+    echo "Write every reply to the user, and all other prose (docs, commit messages, PR and issue bodies, comments), in the writer's voice described by the personal rules below. They decide length, openings, punctuation, and formatting for every reply, including diagnoses and status reports. A reply to the user should read like one of the samples at the end of the personal rules, with the same dashes and openings, and stay within their length${range:+ ($range words)} unless the user asks for more detail. To fit, give the answer and only the evidence the reader needs to act on it, and leave the rest out. The base rules after them apply where the personal rules say nothing. Neither set may change a fact."
     echo
     cat "$personal"
     echo

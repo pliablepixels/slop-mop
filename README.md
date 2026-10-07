@@ -36,11 +36,21 @@ Then tell your agent to use it for prose. In Claude Code, add a line like this t
 Use the slop-mop skill for all prose: replies, docs, READMEs, reports, commit messages, and PR bodies.
 ```
 
+To update, pull, copy again, and rebuild the output style if you use one (see below), then restart Claude Code:
+
+```
+git -C slop-mop pull
+cp -r slop-mop/slop-mop ~/.claude/skills/
+sh ~/.claude/skills/slop-mop/install-style.sh
+```
+
+The copy keeps your `personal.md`. It also leaves behind files that a newer version removed, which do no harm.
+
 ### Use it as an output style (Claude Code)
 
 The CLAUDE.md line asks the agent to load the skill, and the agent decides when a task counts as prose. It can get that wrong. A first message like "check if this issue is true" looks like a code task, so the agent answers without the skill and without your personal rules. Rules printed by a SessionStart hook did not fix this either: the agent had them in context and still wrote in a neutral voice.
 
-An [output style](https://code.claude.com/docs/en/output-styles) fits better. Claude Code sends the active style with every request, as part of the system prompt, so the rules apply to every reply without the agent choosing to load anything. Build one from the skill and your `personal.md`:
+An [output style](https://code.claude.com/docs/en/output-styles) fits better. Claude Code sends the active style with every request, as part of the system prompt, so the rules apply to every reply without the agent choosing to load anything. Build one from the skill and your `personal.md`, if you have one (see [Personal style](#personal-style)):
 
 ```
 sh ~/.claude/skills/slop-mop/install-style.sh
@@ -72,7 +82,7 @@ Run `/slop-mop personalize` and give it samples of your own writing, or state ru
 
 After writing the file, the agent checks your instruction files (in Claude Code, `~/.claude/CLAUDE.md` and the project's `CLAUDE.md`) for lines that would override your rules, such as "keep replies neutral." Those files outrank skills. The agent quotes each conflicting line, suggests a replacement, and changes it only if you say yes.
 
-The skill reads `personal.md` on every use. Your rules apply to everything the agent writes for you, including its replies, and win over the style rules, including the dash rule. They never override the rule against inventing facts. Re-running the install `cp` leaves `personal.md` in place, and the repo's `.gitignore` keeps it out of commits.
+The skill reads `personal.md` on every use. Your rules apply to everything the agent writes for you, including its replies, and win over the base rules, including the dash rule. They never override the rule against inventing facts. Re-running the install `cp` leaves `personal.md` in place, and the repo's `.gitignore` keeps it out of commits.
 
 ## Where it came from
 

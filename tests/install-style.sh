@@ -32,6 +32,8 @@ grep -qx '## Voice' "$out" && fail "Voice section kept with personal.md"
 grep -qx '## Four jobs' "$out" && fail "procedures kept"
 [ "$(grep -cx '## Rules' "$out")" = 2 ] || fail "template code block leaked into the style"
 grep -q 'stay within their length (3 to 5 words)' "$out" || fail "sample word range"
+printf '# Personal rules\n\n## Rules\n- Short.\n' > "$tmp/personal.md"; sh "$tmp/install-style.sh" "$out" > /dev/null
+grep -q 'stay within their length unless' "$out" || fail "length wording without samples"
 rm "$tmp/personal.md"; sh "$tmp/install-style.sh" "$out" > /dev/null
 grep -qx '## Voice' "$out" || fail "Voice section dropped without personal.md"
 grep -q '^\*\*No dashes\.\*\*' "$out" || fail "base rule dropped without personal.md"
