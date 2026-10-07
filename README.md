@@ -42,6 +42,8 @@ This step is optional. Without it, the skill uses only its default rules. A fres
 
 Run `/slop-mop personalize` and give it samples of your own writing, or state rules directly ("I never say folks"). Samples can be pasted text, file paths, or a link to things you wrote, such as a GitHub issue list where you comment a lot. Use writing you did without AI help, at least 500 words in total. The agent reads the samples, lists the habits that repeat, and quotes an example for each. After you confirm the list, it writes the rules to `personal.md` in the installed skill directory. Run it again with new samples to add or refine rules.
 
+After writing the file, the agent checks your instruction files (in Claude Code, `~/.claude/CLAUDE.md` and the project's `CLAUDE.md`) for lines that would override your rules, such as "keep replies neutral." Those files outrank skills. The agent quotes each conflicting line, suggests a replacement, and changes it only if you say yes.
+
 The skill reads `personal.md` on every use. Your rules apply to everything the agent writes for you, including its replies, and win over the style rules, including the dash rule. They never override the rule against inventing facts. Re-running the install `cp` leaves `personal.md` in place, and the repo's `.gitignore` keeps it out of commits.
 
 ## Where it came from
