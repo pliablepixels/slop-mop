@@ -40,7 +40,7 @@ Use the slop-mop skill for all prose: replies, docs, READMEs, reports, commit me
 
 The CLAUDE.md line asks the agent to load the skill, and the agent decides when a task counts as prose. It can get that wrong. A first message like "check if this issue is true" looks like a code task, so the agent answers without the skill and without your personal rules.
 
-To take that decision away from the agent, add a SessionStart hook that prints the skill into every session. In `~/.claude/settings.json`, merge this into `hooks`:
+To make that less likely, add a SessionStart hook that puts your rules and the instruction to load the skill at the start of every session. In `~/.claude/settings.json`, merge this into `hooks`:
 
 ```json
 "SessionStart": [
@@ -52,7 +52,9 @@ To take that decision away from the agent, add a SessionStart hook that prints t
 ]
 ```
 
-`preload.sh` prints `SKILL.md`, then `personal.md` if you have one. The hook also runs after the context is compacted, so the rules come back after a long session gets summarized. The cost is the size of the two files, roughly 6,000 tokens per session.
+`preload.sh` prints an instruction to load the skill before the first reply, your `personal.md` if you have one, and the skill's "Check before sending" list. It does not print all of `SKILL.md`. Claude Code moves hook output over 10,000 characters to a file and shows the agent only the first 2 KB, which would cut off the personal rules. The output is about 4,000 characters with a typical `personal.md`. The hook also runs after the context is compacted, so the rules come back after a long session gets summarized.
+
+Your personal rules and the check list always reach the agent this way. Loading the full skill still depends on the agent following the instruction, though a direct instruction at the top of the session is much harder to skip than a CLAUDE.md line.
 
 ## Personal style
 
