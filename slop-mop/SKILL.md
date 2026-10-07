@@ -190,6 +190,7 @@ To build or extend the file, when the user runs `/slop-mop personalize`:
 5. If `personal.md` already exists, read it and merge. Add new rules, sharpen ones the new samples refine, and ask before replacing a rule the samples contradict.
 6. Show the proposed rules and ask the user to confirm or edit them. Write the file only after they confirm.
 7. Check the user's agent instruction files for lines that would block the personal rules. In Claude Code these are `~/.claude/CLAUDE.md` and the current project's `CLAUDE.md`. Elsewhere they may be `AGENTS.md` or similar. Instruction files usually outrank skills, so a line like "keep replies neutral" or "never use dashes" wins over `personal.md`. Quote each such line with its file and line number, and suggest a replacement, such as "Write in my voice, using the personal rules in slop-mop's `personal.md`." Change a line only after the user says yes.
+8. If `~/.claude/output-styles/slop-mop.md` exists, run `sh install-style.sh` from this skill's directory to rebuild it with the new rules, and tell the user to restart Claude Code.
 
 Use this layout for the file:
 

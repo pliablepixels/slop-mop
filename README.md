@@ -36,28 +36,25 @@ Then tell your agent to use it for prose. In Claude Code, add a line like this t
 Use the slop-mop skill for all prose: replies, docs, READMEs, reports, commit messages, and PR bodies.
 ```
 
-### Load it at session start
+### Use it as an output style (Claude Code)
 
-The CLAUDE.md line asks the agent to load the skill, and the agent decides when a task counts as prose. It can get that wrong. A first message like "check if this issue is true" looks like a code task, so the agent answers without the skill and without your personal rules.
+The CLAUDE.md line asks the agent to load the skill, and the agent decides when a task counts as prose. It can get that wrong. A first message like "check if this issue is true" looks like a code task, so the agent answers without the skill and without your personal rules. Rules printed by a SessionStart hook did not fix this either: the agent had them in context and still wrote in a neutral voice.
 
-To take that decision away from the agent, add SessionStart hooks that print the whole skill and your `personal.md` at the start of every session. In `~/.claude/settings.json`, merge this into `hooks`:
+An [output style](https://code.claude.com/docs/en/output-styles) fits better. Claude Code sends the active style with every request, as part of the system prompt, so the rules apply to every reply without the agent choosing to load anything. Build one from the skill and your `personal.md`:
 
-```json
-"SessionStart": [
-  {
-    "hooks": [
-      { "type": "command", "command": "sh ~/.claude/skills/slop-mop/preload.sh 1" },
-      { "type": "command", "command": "sh ~/.claude/skills/slop-mop/preload.sh 2" },
-      { "type": "command", "command": "sh ~/.claude/skills/slop-mop/preload.sh 3" },
-      { "type": "command", "command": "sh ~/.claude/skills/slop-mop/preload.sh 4" }
-    ]
-  }
-]
+```
+sh ~/.claude/skills/slop-mop/install-style.sh
 ```
 
-Claude Code caps each hook's output at 10,000 characters. Anything longer goes to a file, and the agent sees only the first 2,000 characters. So `preload.sh N` splits `SKILL.md` and `personal.md` at headings into parts under 9,000 characters and prints part N. Today that makes three parts. The fourth entry prints nothing until the files grow. Each part is labeled "part N of M", and the first part tells the agent to read the files if a part is missing.
+This writes `~/.claude/output-styles/slop-mop.md` with your personal rules first, then the skill. The style sets `keep-coding-instructions: true`, so Claude Code keeps its software engineering instructions. Then set the style in `~/.claude/settings.json` and restart Claude Code:
 
-The hooks also run after the context is compacted, so the rules come back after a long session gets summarized. The cost is the size of the two files, about 23,000 characters (roughly 6,000 tokens) per session.
+```json
+"outputStyle": "slop-mop"
+```
+
+A project's `.claude/settings.json` or `.claude/settings.local.json` can set its own `outputStyle` and override yours. Running `/output-style` or picking a style in `/config` writes one to `settings.local.json`, so check there if the style stops applying in one project.
+
+Claude Code reads style files at startup. Re-run `install-style.sh` after you change `personal.md` or update the skill, then restart. `/slop-mop personalize` does the re-run for you when the style file exists. The style costs about 23,000 characters (roughly 6,000 tokens) of input per request, most of it served from the prompt cache after the first request. An output style does not apply to subagents other than forks, which use their own system prompts.
 
 ## Personal style
 
