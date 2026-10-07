@@ -6,6 +6,8 @@ A writing skill for coding agents. It makes the agent write the way a careful pe
 
 It works in three modes. When the agent drafts text, it applies the rules as it writes. When you give it a draft, it makes the smallest edit that removes AI patterns and keeps your voice. When you ask whether text sounds like AI, it names each pattern with the line it appears on and does not rewrite.
 
+You can also teach it your own style with `/slop-mop personalize`. See [Personal style](#personal-style).
+
 ## What it enforces
 
 - Facts only. No invented names, numbers, dates, quotes, or sources. No stretching a small fact into a bigger claim. Failures reported as failures.
@@ -33,6 +35,14 @@ Then tell your agent to use it for prose. In Claude Code, add a line like this t
 ```
 Use the slop-mop skill for all prose: replies, docs, READMEs, reports, commit messages, and PR bodies.
 ```
+
+## Personal style
+
+This step is optional. Without it, the skill uses only its default rules. A fresh install has no personal rules. Yours get created when you run the command below.
+
+Run `/slop-mop personalize` and give it samples of your own writing, or state rules directly ("I never say folks"). Samples can be pasted text, file paths, or a link to things you wrote, such as a GitHub issue list where you comment a lot. Use writing you did without AI help, at least 500 words in total. The agent reads the samples, lists the habits that repeat, and quotes an example for each. After you confirm the list, it writes the rules to `personal.md` in the installed skill directory. Run it again with new samples to add or refine rules.
+
+The skill reads `personal.md` on every use. Your rules apply to everything the agent writes for you, including its replies, and win over the style rules, including the dash rule. They never override the rule against inventing facts. Re-running the install `cp` leaves `personal.md` in place, and the repo's `.gitignore` keeps it out of commits.
 
 ## Where it came from
 
