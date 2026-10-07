@@ -36,6 +36,24 @@ Then tell your agent to use it for prose. In Claude Code, add a line like this t
 Use the slop-mop skill for all prose: replies, docs, READMEs, reports, commit messages, and PR bodies.
 ```
 
+### Load it at session start
+
+The CLAUDE.md line asks the agent to load the skill, and the agent decides when a task counts as prose. It can get that wrong. A first message like "check if this issue is true" looks like a code task, so the agent answers without the skill and without your personal rules.
+
+To take that decision away from the agent, add a SessionStart hook that prints the skill into every session. In `~/.claude/settings.json`, merge this into `hooks`:
+
+```json
+"SessionStart": [
+  {
+    "hooks": [
+      { "type": "command", "command": "sh ~/.claude/skills/slop-mop/preload.sh" }
+    ]
+  }
+]
+```
+
+`preload.sh` prints `SKILL.md`, then `personal.md` if you have one. The hook also runs after the context is compacted, so the rules come back after a long session gets summarized. The cost is the size of the two files, roughly 6,000 tokens per session.
+
 ## Personal style
 
 This step is optional. Without it, the skill uses only its default rules. A fresh install has no personal rules. Yours get created when you run the command below.
