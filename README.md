@@ -22,7 +22,7 @@ When the agent delegates slop-mop work to subagents, the skill tells it to run t
 
 ## Install
 
-Clone this repo, then copy the skill directory into your agent's skills folder. For Claude Code:
+Clone this repo and copy the skill directory into your agent's skills folder. For Claude Code:
 
 ```
 git clone https://github.com/pliablepixels/slop-mop.git
@@ -30,13 +30,34 @@ mkdir -p ~/.claude/skills
 cp -r slop-mop/slop-mop ~/.claude/skills/
 ```
 
-Then tell your agent to use it for prose. In Claude Code, add a line like this to `~/.claude/CLAUDE.md`:
+In Claude Code, also turn the skill into an output style, so the rules reach every reply instead of only the replies where the agent decides to load the skill:
+
+1. Build the style. This writes `~/.claude/output-styles/slop-mop.md`.
+
+   ```
+   sh ~/.claude/skills/slop-mop/install-style.sh
+   ```
+
+2. Add `"outputStyle": "slop-mop"` to the top-level object in `~/.claude/settings.json`.
+3. Add this line to `~/.claude/CLAUDE.md`, for documents and other prose the agent writes outside a reply:
+
+   ```
+   Use the slop-mop skill for all prose: replies, docs, READMEs, reports, commit messages, and PR bodies.
+   ```
+
+4. Restart Claude Code. It reads style files only at startup.
+
+If you later run `/slop-mop personalize` (see [Personal style](#personal-style)), it rebuilds the style with your rules and offers to add this import to `~/.claude/CLAUDE.md`:
 
 ```
-Use the slop-mop skill for all prose: replies, docs, READMEs, reports, commit messages, and PR bodies.
+My personal rules: @~/.claude/skills/slop-mop/personal.md
 ```
 
-To update, pull, copy again, and rebuild the output style if you use one (see below), then restart Claude Code:
+In other agents, add the "Use the slop-mop skill" line to the agent's instruction file, such as `AGENTS.md`.
+
+### Update
+
+Pull, copy again, rebuild the style, then restart Claude Code:
 
 ```
 git -C slop-mop pull
@@ -46,33 +67,17 @@ sh ~/.claude/skills/slop-mop/install-style.sh
 
 The copy keeps your `personal.md`. It also leaves behind files that a newer version removed, which do no harm.
 
-### Use it as an output style (Claude Code)
+### Why an output style
 
-The CLAUDE.md line asks the agent to load the skill, and the agent decides when a task counts as prose. It can get that wrong. A first message like "check if this issue is true" looks like a code task, so the agent answers without the skill and without your personal rules. Rules printed by a SessionStart hook did not fix this either: the agent had them in context and still wrote in a neutral voice.
+With only the CLAUDE.md line, the agent decides when a task counts as prose, and it can get that wrong. A first message like "check if this issue is true" looks like a code task, so the agent answers without the skill and without your personal rules. Rules printed by a SessionStart hook did not fix this either: the agent had them in context and still wrote in a neutral voice. Claude Code sends an [output style](https://code.claude.com/docs/en/output-styles) with every request, as part of the system prompt, so its rules apply to every reply without the agent choosing to load anything.
 
-An [output style](https://code.claude.com/docs/en/output-styles) fits better. Claude Code sends the active style with every request, as part of the system prompt, so the rules apply to every reply without the agent choosing to load anything. Build one from the skill and your `personal.md`, if you have one (see [Personal style](#personal-style)):
+With a `personal.md`, the style puts your rules and samples first and states the samples' word range as the length target. After them come the skill's drafting rules, minus the Voice section and any rule you replaced with `[overrides: <rule name>]`, so no base rule argues against your voice. The edit, detect, and personalize procedures stay in the skill. The style sets `keep-coding-instructions: true`, so Claude Code keeps its software engineering instructions.
 
-```
-sh ~/.claude/skills/slop-mop/install-style.sh
-```
-
-This writes `~/.claude/output-styles/slop-mop.md`. With a `personal.md`, the style puts your rules and samples first and states the samples' word range as the length target. After them come the skill's drafting rules, minus the Voice section and any rule you replaced with `[overrides: <rule name>]`, so no base rule argues against your voice. The edit, detect, and personalize procedures stay in the skill. The style sets `keep-coding-instructions: true`, so Claude Code keeps its software engineering instructions. Then set the style in `~/.claude/settings.json` and restart Claude Code:
-
-```json
-"outputStyle": "slop-mop"
-```
-
-If you have a `personal.md`, also import it into `~/.claude/CLAUDE.md`:
-
-```
-My personal rules: @~/.claude/skills/slop-mop/personal.md
-```
-
-Claude Code gives CLAUDE.md more weight than an output style, so other writing instructions in CLAUDE.md, such as "replies in full sentences", win over rules that only live in the style. An Opus grader scored replies from 1 to 5 for matching one writer's voice. With the style alone, nine replies to three prompts averaged about 2. With the import added, 33 replies to six prompts averaged about 3. Three of the writer's own comments averaged about 4. Check your CLAUDE.md for lines that set reply length or tone, and point them at the personal rules.
+The CLAUDE.md import matters because Claude Code gives CLAUDE.md more weight than an output style, so other writing instructions in CLAUDE.md, such as "replies in full sentences", win over rules that only live in the style. An Opus grader scored replies from 1 to 5 for matching one writer's voice. With the style alone, nine replies to three prompts averaged about 2. With the import added, 33 replies to six prompts averaged about 3. Three of the writer's own comments averaged about 4. Check your CLAUDE.md for lines that set reply length or tone, and point them at the personal rules.
 
 A project's `.claude/settings.json` or `.claude/settings.local.json` can set its own `outputStyle` and override yours. Running `/output-style` or picking a style in `/config` writes one to `settings.local.json`, so check there if the style stops applying in one project.
 
-Claude Code reads style files at startup. Re-run `install-style.sh` after you change `personal.md` or update the skill, then restart. `/slop-mop personalize` does the re-run for you when the style file exists. The style is about 20,000 characters (roughly 5,000 tokens) of input per request, most of it served from the prompt cache after the first request. An output style does not apply to subagents other than forks, which use their own system prompts.
+The style is about 20,000 characters (roughly 5,000 tokens) of input per request, most of it served from the prompt cache after the first request. An output style does not apply to subagents other than forks, which use their own system prompts.
 
 ## Personal style
 
